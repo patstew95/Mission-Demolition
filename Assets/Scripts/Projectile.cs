@@ -50,14 +50,13 @@ public class Projectile : MonoBehaviour
 
         //if projectile hasn't moved through sleep threshold
 
-        if( maxDelta <= Physics.sleepThreshold)
+    if( maxDelta <= Physics.sleepThreshold)
         {
             //Set awake to false and put the rigidbody to sleep
             awake = false;
             rigid.Sleep();
         }
     }
-
     private void OnDestroy()
     {
         PROJECTILES.Remove(this);

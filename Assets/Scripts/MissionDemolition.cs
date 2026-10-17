@@ -54,6 +54,9 @@ public class MissionDemolition : MonoBehaviour {
         UpdateGUI();
 
         mode = GameMode.playing;
+
+        //change view
+        FollowCam.SWITCH_VIEW(FollowCam.eView.both);
     }
 
     void UpdateGUI() {
@@ -70,9 +73,12 @@ public class MissionDemolition : MonoBehaviour {
             // Change mode to stop checking for level end
             mode = GameMode.levelEnd;
 
+            FollowCam.SWITCH_VIEW(FollowCam.eView.both);
+
             // Start the next level in 2 seconds
             Invoke("NextLevel", 2f);
         }
+
     }
 
     void NextLevel() {
