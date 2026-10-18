@@ -83,11 +83,11 @@ public class MissionDemolition : MonoBehaviour {
 
     void NextLevel() {
         level++;
-        if (level == levelMax) {
-            level = 0;
-            shotsTaken = 0;
-        }
-        StartLevel();
+    if (level >= castles.Length) {                          
+        GameOverUI.SHOW("You Win!\nShots: " + shotsTaken);
+        return;                                         
+    }
+    StartLevel();
     }
 
     // Static method that allows code anywhere to increment shotsTaken
