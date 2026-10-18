@@ -6,6 +6,7 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
    const int LOOKBACK_COUNT = 10;
+   private bool hitSomething = false;
    static List<Projectile> PROJECTILES = new List<Projectile>();
 
     [SerializeField]
@@ -28,8 +29,15 @@ public class Projectile : MonoBehaviour
         PROJECTILES.Add(this);
     }
 
-    void FixedUpdate() {
-        if ( rigid.isKinematic || !awake ) return;
+        void FixedUpdate() {
+
+        if ( rigid.isKinematic || !awake ) return;                     
+
+        // Apply wind while the projectile is in flight
+        if ( !hitSomething ) {                                         
+            rigid.AddForce( Vector3.right * MissionDemolition.WIND,
+                            ForceMode.Acceleration );
+        }
 
         Vector3 deltaV3 = transform.position - prevPos;
         deltas.Add( deltaV3.magnitude );
@@ -43,19 +51,20 @@ public class Projectile : MonoBehaviour
         // Iterate over deltas and find the greatest one
         float maxDelta = 0;
 
-        foreach( float f in deltas)
-        {
-            if ( f > maxDelta) maxDelta = f;
+        foreach( float f in deltas ) {
+            if ( f > maxDelta ) maxDelta = f;
         }
 
-        //if projectile hasn't moved through sleep threshold
-
-    if( maxDelta <= Physics.sleepThreshold)
-        {
-            //Set awake to false and put the rigidbody to sleep
+        // If projectile hasn't moved through sleep threshold
+        if ( maxDelta <= Physics.sleepThreshold ) {
+            // Set awake to false and put the rigidbody to sleep
             awake = false;
             rigid.Sleep();
         }
+    }
+
+    void OnCollisionEnter( Collision coll ) {                          // c
+        hitSomething = true;
     }
     private void OnDestroy()
     {

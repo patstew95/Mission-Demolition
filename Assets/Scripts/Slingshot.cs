@@ -8,6 +8,9 @@ public class Slingshot : MonoBehaviour
     public GameObject prefabProjectile;
     public float velocityMult = 10f;
     public GameObject projLinePrefab;
+    public float bandWidth = 0.15f;
+    public Material bandMat;
+    //public Color bandColor = new Color(0.35f, 0.2f, 0.1f);
 
     [Header("Set Dynamically")]
     public GameObject launchPoint;
@@ -16,13 +19,55 @@ public class Slingshot : MonoBehaviour
     public bool aimingMode;
     private Rigidbody projectileRigidBody;
 
+    private Transform leftArm;
+    private Transform rightArm;
+
+private LineRenderer leftBand;
+private LineRenderer rightBand;
+
     void Awake()
     {
         Transform launchPointTrans = transform.Find("LaunchPoint");
         launchPoint = launchPointTrans.gameObject;
         launchPoint.SetActive(false);
         launchPos = launchPointTrans.position;
+
+        leftArm = transform.Find("LeftArm");
+        rightArm = transform.Find("RightArm");
+
+
+        leftBand = MakeBandSegment("LeftBand", bandMat);
+        rightBand = MakeBandSegment("RightBand", bandMat);
+        UpdateBand(launchPos);
     }
+
+        LineRenderer MakeBandSegment(string name, Material mat)
+        {
+            GameObject go = new GameObject(name);
+            go.transform.SetParent(transform, false);
+
+            LineRenderer lr = go.AddComponent<LineRenderer>();
+            lr.material = mat;
+            lr.startWidth = lr.endWidth = bandWidth;
+            lr.numCapVertices = 4;
+            lr.useWorldSpace = true;
+            lr.positionCount = 2;
+            return lr;
+        }
+        Vector3 ArmTip(Transform arm)
+        {
+            return arm.position + arm.up * arm.lossyScale.y;
+        }
+        //stretches band 
+        void UpdateBand(Vector3 projPos)
+        {
+            leftBand.SetPosition(0, ArmTip(leftArm));
+            leftBand.SetPosition(1, projPos);
+            rightBand.SetPosition(0, ArmTip(rightArm));
+            rightBand.SetPosition(1, projPos);
+        }
+
+    
     void Update()
     {
         if (!aimingMode)
@@ -44,6 +89,7 @@ public class Slingshot : MonoBehaviour
         }
         Vector3 projPos = launchPos + mouseDelta;
         projectile.transform.position = projPos;
+        UpdateBand(projPos);
 
         if (Input.GetMouseButtonUp(0))
         {
@@ -55,6 +101,7 @@ public class Slingshot : MonoBehaviour
             //add line to projectile
             Instantiate<GameObject>(projLinePrefab, projectile.transform);
             projectile = null;
+            UpdateBand(launchPos);
             MissionDemolition.SHOT_FIRED();
         }
     }

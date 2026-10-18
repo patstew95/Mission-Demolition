@@ -17,6 +17,8 @@ public class MissionDemolition : MonoBehaviour {
     public Text         uitShots;  // The UIText_Shots Text
     public Vector3      castlePos; // The place to put castles
     public GameObject[] castles;   // An array of the castles
+    public Text uitWind;
+    public float maxWind = 3f;
 
     [Header("Dynamic")]
     public int          level;     // The current level
@@ -25,6 +27,7 @@ public class MissionDemolition : MonoBehaviour {
     public GameObject   castle;    // The current castle
     public GameMode     mode = GameMode.idle;
     public string       showing = "Show Slingshot"; // FollowCam mode
+    public float wind = 0f;
 
     void Start() {
         S = this; // Define the Singleton
@@ -57,6 +60,19 @@ public class MissionDemolition : MonoBehaviour {
 
         //change view
         FollowCam.SWITCH_VIEW(FollowCam.eView.both);
+
+        wind = Random.Range(-2, maxWind);               
+        wind = Mathf.Round(wind * 10f) / 10f;                 
+
+        if (uitWind != null) {                                
+            if (Mathf.Abs(wind) < 0.05f) {
+                uitWind.text = "Wind: Calm";
+            } else if (wind > 0) {
+                uitWind.text = "Tailwind >> " + wind.ToString("0.0");
+            } else {
+                uitWind.text = "Headwind << " + Mathf.Abs(wind).ToString("0.0");
+            }
+        }
     }
 
     void UpdateGUI() {
@@ -93,6 +109,10 @@ public class MissionDemolition : MonoBehaviour {
     // Static method that allows code anywhere to increment shotsTaken
     static public void SHOT_FIRED() {
         S.shotsTaken++;
+    }
+    static public float WIND
+    {
+        get { return (S == null) ? 0f : S.wind;}
     }
 
     // Static method that allows code anywhere to get a reference to S.castle
